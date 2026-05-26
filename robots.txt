@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+Sitemap: https://solomonkitumba.github.io/adlite/sitemap.xml
+# If you later want to block crawling of any staging or private paths, add Disallow rules here.
