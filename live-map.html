@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AdLite Live Kampala Map</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <link rel="stylesheet" href="live-map.css" />
+</head>
+<body>
+  <div class="page-shell">
+    <header class="page-header">
+      <div>
+        <p class="eyebrow">AdLite Live Map</p>
+        <h1>Real OpenStreetMap coverage for Kampala</h1>
+        <p>This standalone map uses black-and-white OpenStreetMap tiles and shows simulated paper bag traffic across Kampala neighborhoods.</p>
+      </div>
+      <a class="back-link" href="index.html">Back to homepage</a>
+    </header>
+
+    <main>
+      <section class="map-layout">
+        <div class="map-panel">
+          <div class="map-stats" id="map-stats">
+            <h2>Live moving bags</h2>
+            <p>Neighborhood counts refresh automatically every few seconds.</p>
+          </div>
+          <div id="map" class="map"></div>
+        </div>
+
+        <aside class="map-sidebar">
+          <div class="legend-card">
+            <h2>Neighborhoods</h2>
+            <ul id="legend-list"></ul>
+          </div>
+          <div class="details-card">
+            <h3>Map theme</h3>
+            <p>Black-and-white OpenStreetMap tiles with custom markers for simulated paper bag movement in Kampala.</p>
+          </div>
+        </aside>
+      </section>
+    </main>
+  </div>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script>
+    const areas = [
+      { id: 'Najeera', coords: [0.3626, 32.5622], min: 90, max: 165 },
+      { id: 'Ntinda', coords: [0.3483, 32.6020], min: 70, max: 125 },
+      { id: 'Kira', coords: [0.3731, 32.6190], min: 105, max: 190 },
+      { id: 'Muyenga', coords: [0.3006, 32.6070], min: 55, max: 110 },
+      { id: 'Kansanga', coords: [0.2964, 32.6007], min: 90, max: 145 },
+      { id: 'Munyonyo', coords: [0.2648, 32.6395], min: 65, max: 115 },
+      { id: 'Kiwatule', coords: [0.3520, 32.5960], min: 80, max: 145 },
+    ];
+
+    const map = L.map('map', {
+      center: [0.325, 32.600],
+      zoom: 12,
+      zoomControl: false,
+      attributionControl: false,
+    });
+
+    L.tileLayer('https://stamen-tiles.a.ssl.fastly.net/toner-lite/{z}/{x}/{y}.png', {
+      maxZoom: 18,
+      minZoom: 10,
+      tileSize: 256,
+      crossOrigin: true,
+    }).addTo(map);
+
+    const markerLayer = L.layerGroup().addTo(map);
+
+    function randomCount(min, max) {
+      return Math.floor(Math.random() * (max - min + 1)) + min;
+    }
+
+    function buildIcon(count) {
+      return L.divIcon({
+        html: `<div class="marker-circle"><span>${count}</span></div>`,
+        className: 'custom-marker',
+        iconSize: [50, 50],
+        iconAnchor: [25, 25],
+      });
+    }
+
+    function updateLegend(items) {
+      const list = document.getElementById('legend-list');
+      list.innerHTML = '';
+      items.forEach(item => {
+        const entry = document.createElement('li');
+        entry.innerHTML = `<strong>${item.name}</strong><span>${item.count} bags</span>`;
+        list.appendChild(entry);
+      });
+    }
+
+    function refreshMap() {
+      markerLayer.clearLayers();
+      const entries = [];
+
+      areas.forEach(area => {
+        const count = randomCount(area.min, area.max);
+        const icon = buildIcon(count);
+        L.marker(area.coords, { icon }).addTo(markerLayer);
+        entries.push({ name: area.id, count });
+      });
+      updateLegend(entries);
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      refreshMap();
+      setInterval(refreshMap, 3500);
+    });
+  </script>
+</body>
+</html>
