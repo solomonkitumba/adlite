@@ -191,12 +191,11 @@ img {
   transition: transform 0.2s ease, opacity 0.2s ease;
 }
 
-.nav-links a,
-.footer-links div,
-.label,
-.bullet-list div,
-.trust-copy,
-.callout-text,
+@media (prefers-color-scheme: dark) {
+  .mobile-menu-toggle span {
+    background: #fff;
+  }
+}
 .visual-copy,
 .footer p {
   color: rgba(0, 0, 0, 0.7);
