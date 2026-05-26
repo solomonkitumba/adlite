@@ -311,10 +311,15 @@ nav a.button.button-primary{
   border-radius: 2.5rem;
   box-shadow: 0 50px 120px rgba(0, 0, 0, 0.12);
   transform: rotate(-3deg);
+  width: min(100%, 34rem);
+  margin-inline: auto;
 }
 
 .visual-card {
-  min-height: 32rem;
+  min-height: min(32rem, 70vh);
+  aspect-ratio: 3 / 4;
+  width: 100%;
+  max-width: 28rem;
   background: #b98b5e;
   border-radius: 2rem;
   display: grid;
@@ -929,6 +934,17 @@ nav a.button.button-primary{
 
   .hero-actions .button {
     width: 100%;
+  }
+
+  .visual-frame {
+    padding: 1.5rem;
+  }
+
+  .visual-card {
+    min-height: auto;
+    aspect-ratio: 3 / 4;
+    max-width: 100%;
+    padding: 2rem;
   }
 
   .visual-callout {
