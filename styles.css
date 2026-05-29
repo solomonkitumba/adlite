@@ -758,6 +758,265 @@ nav a.button.button-primary{
   line-height: 1.8;
 }
 
+.campaign-form-section {
+  padding: 4.5rem 2rem;
+  background: #faf8f3;
+}
+
+.campaign-form {
+  max-width: 980px;
+  margin: 0 auto;
+  background: #fff;
+  border-radius: 2rem;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  box-shadow: 0 30px 70px rgba(0, 0, 0, 0.08);
+  padding: 2.5rem;
+}
+
+.campaign-form .progress-steps {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  margin-bottom: 2rem;
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  border-radius: 1.5rem;
+  overflow: hidden;
+  background: #f7f5f1;
+}
+
+.campaign-form .progress-step {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  border: none;
+  background: transparent;
+  color: #111;
+  padding: 1.2rem 1.25rem;
+  text-align: left;
+  transition: background-color 0.2s ease, color 0.2s ease;
+  cursor: pointer;
+}
+
+.campaign-form .progress-step + .progress-step {
+  border-left: 1px solid rgba(0, 0, 0, 0.12);
+}
+
+.campaign-form .progress-step:hover {
+  background: rgba(0, 0, 0, 0.04);
+}
+
+.campaign-form .progress-step.active {
+  background: #000;
+  color: #fff;
+}
+
+.campaign-form .progress-step.active .progress-step-number {
+  background: #fff;
+  color: #000;
+  border-radius: 76%;
+    width: 22px;
+    text-align: center;
+    font-weight: 900;
+}
+
+.campaign-form .progress-step-number,
+.campaign-form .step-number {
+  display: none;
+}
+
+.campaign-form .progress-step strong {
+  display: block;
+  margin-bottom: 0.25rem;
+  font-size: 0.95rem;
+}
+
+.campaign-form .progress-step span {
+  display: block;
+  color: inherit;
+  opacity: 0.85;
+  font-size: 0.95rem;
+  line-height: 1.55;
+}
+
+.campaign-form .step-header {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.campaign-form .form-actions {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  margin-top: 2rem;
+  flex-wrap: wrap;
+}
+
+.campaign-form .step-header h3 {
+  margin: 0;
+  font-size: 1.75rem;
+}
+
+.campaign-form .step-label {
+  color: rgba(0, 0, 0, 0.7);
+  max-width: 42rem;
+  line-height: 1.6;
+}
+
+.campaign-form .form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1.25rem;
+}
+
+.campaign-form .form-group {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.campaign-form .full-width {
+  grid-column: 1 / -1;
+}
+
+.campaign-form label {
+  font-weight: 700;
+  color: #111;
+}
+
+.campaign-form input,
+.campaign-form select,
+.campaign-form textarea {
+  width: 100%;
+  min-height: 3rem;
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  border-radius: 1rem;
+  padding: 1rem 1.1rem;
+  font: inherit;
+  background: #fafafa;
+  color: #111;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.campaign-form textarea {
+  min-height: 9rem;
+  resize: vertical;
+}
+
+.campaign-form input:focus,
+.campaign-form select:focus,
+.campaign-form textarea:focus {
+  outline: none;
+  border-color: #000;
+  box-shadow: 0 0 0 4px rgba(0, 0, 0, 0.06);
+}
+
+.campaign-form .field-hint {
+  margin: 0;
+  color: rgba(0, 0, 0, 0.55);
+  font-size: 0.95rem;
+}
+
+.campaign-form .form-step {
+  display: none;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.campaign-form .form-step.active {
+  display: block;
+  opacity: 1;
+}
+
+.campaign-form .review-card {
+  background: #000;
+  color: #fff;
+  border-radius: 1.75rem;
+  padding: 2rem;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.campaign-form .review-card h4 {
+  margin: 0 0 1rem;
+  font-size: 1.5rem;
+}
+
+.campaign-form .summary-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 1rem;
+}
+
+.campaign-form .summary-list li {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  align-items: flex-start;
+  font-size: 1rem;
+  line-height: 1.6;
+}
+
+.campaign-form .summary-list strong {
+  color: #fff;
+  font-weight: 700;
+}
+
+.campaign-form .form-actions {
+  display: flex;
+  /* justify-content: flex-end; */
+  gap: 1rem;
+  margin-top: 2rem;
+  flex-wrap: wrap;
+}
+
+.campaign-form .form-actions .button {
+  min-width: 10rem;
+}
+
+.campaign-form .progress-step[disabled] {
+  opacity: 0.55;
+  cursor: default;
+}
+
+.campaign-form .progress-step.active {
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
+}
+
+.campaign-form .form-success {
+  display: none;
+  margin-top: 2rem;
+  padding: 2rem;
+  border-radius: 1.75rem;
+  background: #e6f3ea;
+  color: #0f3421;
+  border: 1px solid #9ad5b8;
+}
+
+.campaign-form .form-success.visible {
+  display: block;
+}
+
+@media (max-width: 767px) {
+  .campaign-form .form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .campaign-form .step-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .campaign-form .form-actions {
+    justify-content: stretch;
+  }
+
+  .campaign-form .form-actions .button {
+    width: 100%;
+  }
+}
+
 .cta {
   padding: 4.5rem 2rem;
 }

@@ -45,7 +45,7 @@
         <a href="#locations">Locations</a>
         <a href="#contact">Contact</a>
       </div>
-      <a href="#contact" class="button button-primary">Book a Campaign</a>
+      <a href="#campaign" class="button button-primary">Book a Campaign</a>
     </nav>
 
     <main>
@@ -56,7 +56,7 @@
             <h1>Paper bags that advertise for you.</h1>
             <p>We turn everyday paper bags into moving billboards distributed through real shops, markets, pharmacies, salons, and takeaway points across Kampala.</p>
             <div class="hero-actions">
-              <a href="#contact" class="button button-primary">Start Your Campaign</a>
+              <a href="#campaign" class="button button-primary">Start Your Campaign</a>
               <a href="#how" class="button button-secondary">View How It Works</a>
             </div>
           </div>
@@ -213,7 +213,7 @@
                 <li>Estimated 15,000+ impressions</li>
               </ul>
               <div class="pricing-price">UGX 850K</div>
-              <a href="#contact" class="button button-secondary">Select Starter</a>
+              <a href="#campaign" class="button button-secondary">Select Starter</a>
             </article>
 
             <article class="pricing-card featured">
@@ -227,7 +227,7 @@
                 <li>Estimated 75,000+ impressions</li>
               </ul>
               <div class="pricing-price">UGX 3.5M</div>
-              <a href="#contact" class="button button-primary">Select Growth</a>
+              <a href="#campaign" class="button button-primary">Select Growth</a>
             </article>
 
             <article class="pricing-card">
@@ -242,7 +242,7 @@
                 <li>Estimated 200,000+ impressions</li>
               </ul>
               <div class="pricing-price">UGX 9M+</div>
-              <a href="#contact" class="button button-secondary">Select City Reach</a>
+              <a href="#campaign" class="button button-secondary">Select City Reach</a>
             </article>
           </div>
         </div>
@@ -288,6 +288,142 @@
         </div>
       </section>
 
+      <section id="campaign" class="feature campaign-form-section">
+        <div class="feature-inner">
+          <div class="section-intro">
+            <div class="label">Book a Campaign</div>
+            <h2>Build your campaign in three easy steps.</h2>
+            <p>Pick a package, add your preferred areas, then share your contact and company details.</p>
+          </div>
+
+          <div class="form-shell">
+            <form id="campaign-form" class="campaign-form" novalidate>
+              <div class="progress-steps" aria-label="Form steps">
+                <button type="button" class="progress-step active" data-step="1">
+                  <span class="progress-step-number">1</span>
+                  <div>
+                    <strong>Campaign</strong>
+                    <span>Package & areas</span>
+                  </div>
+                </button>
+                <button type="button" class="progress-step" data-step="2">
+                  <span class="progress-step-number">2</span>
+                  <div>
+                    <strong>Contact</strong>
+                    <span>Customer details</span>
+                  </div>
+                </button>
+                <button type="button" class="progress-step" data-step="3">
+                  <span class="progress-step-number">3</span>
+                  <div>
+                    <strong>Review</strong>
+                    <span>Confirm submission</span>
+                  </div>
+                </button>
+              </div>
+
+              <div class="form-step active" data-step="1">
+                <div class="step-header">
+                  <div>
+                    <span class="step-number">Step 1</span>
+                    <h3>Choose your campaign</h3>
+                  </div>
+                  <div class="step-label">Select a package and target areas.</div>
+                </div>
+
+                <div class="form-grid">
+                  <div class="form-group">
+                    <label for="package">Package</label>
+                    <select id="package" name="package" required>
+                      <option value="">Choose a package</option>
+                      <option value="Starter">Starter — 1,000 Bags</option>
+                      <option value="Growth">Growth — 5,000 Bags</option>
+                      <option value="City Reach">City Reach — 15,000 Bags</option>
+                    </select>
+                  </div>
+
+                  <div class="form-group full-width">
+                    <label for="areas">Target areas</label>
+                    <textarea id="areas" name="areas" placeholder="e.g. Nakasero, Makindye, Kampala Central" rows="4" required></textarea>
+                    <p class="field-hint">Separate multiple areas with commas.</p>
+                  </div>
+                </div>
+              </div>
+
+              <div class="form-step" data-step="2">
+                <div class="step-header">
+                  <div>
+                    <span class="step-number">Step 2</span>
+                    <h3>Your contact details</h3>
+                  </div>
+                  <div class="step-label">Tell us who to reach and your business details.</div>
+                </div>
+
+                <div class="form-grid">
+                  <div class="form-group">
+                    <label for="full-name">Full name</label>
+                    <input type="text" id="full-name" name="fullName" placeholder="Your full name" required />
+                  </div>
+
+                  <div class="form-group">
+                    <label for="email">Email address</label>
+                    <input type="email" id="email" name="email" placeholder="you@company.com" required />
+                  </div>
+
+                  <div class="form-group">
+                    <label for="phone">Phone number</label>
+                    <input type="tel" id="phone" name="phone" placeholder="+256 77X XXX XXX" required />
+                  </div>
+
+                  <div class="form-group">
+                    <label for="company-name">Company name</label>
+                    <input type="text" id="company-name" name="companyName" placeholder="Your company or brand" required />
+                  </div>
+
+                  <div class="form-group full-width">
+                    <label for="company-website">Website or social profile</label>
+                    <input type="url" id="company-website" name="companyWebsite" placeholder="https://..." />
+                  </div>
+                </div>
+              </div>
+
+              <div class="form-step" data-step="3">
+                <div class="step-header">
+                  <div>
+                    <span class="step-number">Step 3</span>
+                    <h3>Confirm your details</h3>
+                  </div>
+                  <div class="step-label">Review everything before you submit.</div>
+                </div>
+
+                <div class="review-card">
+                  <h4>Review summary</h4>
+                  <ul class="summary-list" id="review-summary">
+                    <li><strong>Package:</strong> <span data-field="package"></span></li>
+                    <li><strong>Areas:</strong> <span data-field="areas"></span></li>
+                    <li><strong>Name:</strong> <span data-field="fullName"></span></li>
+                    <li><strong>Email:</strong> <span data-field="email"></span></li>
+                    <li><strong>Phone:</strong> <span data-field="phone"></span></li>
+                    <li><strong>Company:</strong> <span data-field="companyName"></span></li>
+                    <li><strong>Website:</strong> <span data-field="companyWebsite"></span></li>
+                  </ul>
+                </div>
+              </div>
+
+              <div class="form-actions">
+                <button type="button" class="button button-secondary" id="back-button" disabled>Back</button>
+                <button type="button" class="button button-primary" id="next-button">Next</button>
+              </div>
+
+              <div class="form-success" id="form-success" aria-live="polite">
+                <h3>Thanks — your campaign request is ready.</h3>
+                <p>We’ve captured your information and will follow up with a custom quote within one business day.</p>
+              </div>
+            </form>
+          </div>
+        </div>
+      </section>
+
       <section class="cta">
         <div class="cta-shell">
           <div class="cta-copy">
@@ -295,7 +431,7 @@
             <h2>Your next customer<br />might carry your<br />ad home.</h2>
             <p>Launch your first AdLite campaign and put your brand directly into the hands of real shoppers.</p>
             <div class="hero-actions">
-              <a href="#contact" class="button button-secondary">Book a Campaign</a>
+              <a href="#campaign" class="button button-secondary">Book a Campaign</a>
               <a href="#contact" class="button button-primary button-invert">Talk to AdLite</a>
             </div>
           </div>
@@ -418,6 +554,106 @@
       }, { threshold: 0.35 });
 
       observer.observe(howSection);
+    }
+
+    const campaignForm = document.querySelector('#campaign-form');
+    if (campaignForm) {
+      const formSteps = Array.from(campaignForm.querySelectorAll('.form-step'));
+      const backButton = campaignForm.querySelector('#back-button');
+      const nextButton = campaignForm.querySelector('#next-button');
+      const successPanel = campaignForm.querySelector('#form-success');
+      let currentStep = 0;
+
+      const formFields = ['package', 'areas', 'fullName', 'email', 'phone', 'companyName', 'companyWebsite'];
+
+      const progressSteps = Array.from(campaignForm.querySelectorAll('.progress-step'));
+
+      const showStep = (index) => {
+        formSteps.forEach((step, stepIndex) => {
+          step.classList.toggle('active', stepIndex === index);
+        });
+
+        progressSteps.forEach((indicator, stepIndex) => {
+          indicator.classList.toggle('active', stepIndex === index);
+        });
+
+        backButton.disabled = index === 0;
+        nextButton.textContent = index === formSteps.length - 1 ? 'Submit Request' : 'Next';
+
+        if (index === formSteps.length - 1) {
+          updateSummary();
+        }
+      };
+
+      progressSteps.forEach((indicator, stepIndex) => {
+        indicator.addEventListener('click', () => {
+          if (stepIndex <= currentStep) {
+            currentStep = stepIndex;
+            showStep(currentStep);
+          }
+        });
+      });
+
+      const validateStep = () => {
+        const fields = Array.from(formSteps[currentStep].querySelectorAll('input, select, textarea'));
+        return fields.reduce((valid, field) => {
+          if (!field.checkValidity()) {
+            field.reportValidity();
+            return false;
+          }
+          return valid;
+        }, true);
+      };
+
+      const updateSummary = () => {
+        formFields.forEach((fieldName) => {
+          const field = campaignForm.querySelector(`[name="${fieldName}"]`);
+          const target = campaignForm.querySelector(`#review-summary [data-field="${fieldName}"]`);
+          if (!target) {
+            return;
+          }
+
+          let value = field ? field.value.trim() : '';
+          if (fieldName === 'areas') {
+            value = value.replace(/\s*,\s*/g, ', ');
+          }
+          if (fieldName === 'companyWebsite' && !value) {
+            value = 'Not provided';
+          }
+          target.textContent = value || 'Not provided';
+        });
+      };
+
+      backButton.addEventListener('click', () => {
+        if (currentStep > 0) {
+          currentStep -= 1;
+          showStep(currentStep);
+        }
+      });
+
+      nextButton.addEventListener('click', () => {
+        if (currentStep < formSteps.length - 1) {
+          if (!validateStep()) {
+            return;
+          }
+          currentStep += 1;
+          showStep(currentStep);
+          return;
+        }
+
+        if (!validateStep()) {
+          return;
+        }
+
+        const formActions = campaignForm.querySelector('.form-actions');
+        formSteps.forEach(step => step.classList.remove('active'));
+        if (formActions) {
+          formActions.style.display = 'none';
+        }
+        successPanel.classList.add('visible');
+      });
+
+      showStep(0);
     }
   </script>
 </body>
