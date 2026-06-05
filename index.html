@@ -248,7 +248,10 @@
         </div>
       </section>
 
-      <section class="feature enhancements-section">
+
+          
+
+          <section class="feature enhancements-section">
         <div class="feature-inner">
           <div class="section-intro">
             <div class="label">Campaign Enhancements</div>
@@ -415,6 +418,8 @@
                 <button type="button" class="button button-primary" id="next-button">Next</button>
               </div>
 
+              <div class="form-error" id="form-error" aria-live="assertive" role="alert"></div>
+
               <div class="form-success" id="form-success" aria-live="polite">
                 <h3>Thanks — your campaign request is ready.</h3>
                 <p>We’ve captured your information and will follow up with a custom quote within one business day.</p>
@@ -562,6 +567,7 @@
       const backButton = campaignForm.querySelector('#back-button');
       const nextButton = campaignForm.querySelector('#next-button');
       const successPanel = campaignForm.querySelector('#form-success');
+      const errorPanel = campaignForm.querySelector('#form-error');
       let currentStep = 0;
 
       const formFields = ['package', 'areas', 'fullName', 'email', 'phone', 'companyName', 'companyWebsite'];
@@ -646,15 +652,45 @@
         }
 
         const formActions = campaignForm.querySelector('.form-actions');
-        formSteps.forEach(step => step.classList.remove('active'));
-        if (formActions) {
-          formActions.style.display = 'none';
-        }
-        successPanel.classList.add('visible');
+        // build payload from form fields
+        const payload = {};
+        formFields.forEach(name => {
+          const el = campaignForm.querySelector(`[name="${name}"]`);
+          payload[name] = el ? el.value : '';
+        });
+
+        const apiUrl = window.CAMPAIGN_API_URL || 'http://localhost:3001/submit';
+        fetch(apiUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        }).then(async (r) => {
+          if (!r.ok) {
+            const body = await r.text();
+            throw new Error(body || `Status ${r.status}`);
+          }
+          return r.json();
+        }).then(result => {
+          console.log('submit result', result);
+          if (errorPanel) {
+            errorPanel.textContent = '';
+            errorPanel.classList.remove('visible');
+          }
+          formSteps.forEach(step => step.classList.remove('active'));
+          if (formActions) formActions.style.display = 'none';
+          successPanel.classList.add('visible');
+        }).catch(err => {
+          console.error('submit error', err);
+          if (errorPanel) {
+            errorPanel.textContent = 'Unable to send to WhatsApp right now. Please make sure the microservice is running on http://localhost:3001 and scan the QR if needed.';
+            errorPanel.classList.add('visible');
+          }
+        });
       });
 
       showStep(0);
     }
+
   </script>
 </body>
 </html>

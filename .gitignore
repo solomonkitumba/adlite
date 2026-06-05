@@ -1,0 +1,10 @@
+# Ignore WhatsApp Web session data from whatsapp-web.js
+server/.wwebjs_auth/
+
+# Ignore Node.js dependencies
+node_modules/
+server/node_modules/
+
+# Ignore OS files
+.DS_Store
+Thumbs.db

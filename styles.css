@@ -984,7 +984,21 @@ nav a.button.button-primary{
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
 }
 
-.campaign-form .form-success {
+.campaign-form .form-error {
+    display: none;
+    margin-top: 1rem;
+    padding: 1rem 1.25rem;
+    border-radius: 1rem;
+    background: #fee9e8;
+    color: #921b1b;
+    border: 1px solid #f5b0ae;
+  }
+
+  .campaign-form .form-error.visible {
+    display: block;
+  }
+
+  .campaign-form .form-success {
   display: none;
   margin-top: 2rem;
   padding: 2rem;
@@ -1201,6 +1215,8 @@ nav a.button.button-primary{
     padding: 2.5rem 1.5rem;
     border-radius: 2rem;
   }
+
+  
 
   .cta-copy p {
     max-width: none;
