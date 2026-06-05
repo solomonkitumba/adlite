@@ -346,9 +346,13 @@
                   </div>
 
                   <div class="form-group full-width">
-                    <label for="areas">Target areas</label>
-                    <textarea id="areas" name="areas" placeholder="e.g. Nakasero, Makindye, Kampala Central" rows="4" required></textarea>
-                    <p class="field-hint">Separate multiple areas with commas.</p>
+                    <label for="areas-input">Target areas</label>
+                    <div class="tag-input-wrapper" id="areas-tag-wrapper">
+                      <div class="tag-list" id="area-tags"></div>
+                      <input id="areas-input" type="text" placeholder="Type an area and press Enter" aria-describedby="areas-hint" />
+                    </div>
+                    <input type="hidden" id="areas" name="areas" />
+                    <p class="field-hint" id="areas-hint">Press Enter or comma to add each area.</p>
                   </div>
                 </div>
               </div>
@@ -571,8 +575,65 @@
       let currentStep = 0;
 
       const formFields = ['package', 'areas', 'fullName', 'email', 'phone', 'companyName', 'companyWebsite'];
+      const areaTags = [];
+      const areasInput = campaignForm.querySelector('#areas-input');
+      const areasHidden = campaignForm.querySelector('#areas');
+      const areaTagList = campaignForm.querySelector('#area-tags');
 
       const progressSteps = Array.from(campaignForm.querySelectorAll('.progress-step'));
+
+      const addAreaTags = (rawValue) => {
+        const values = rawValue.split(',').map(v => v.trim()).filter(Boolean);
+        values.forEach(value => {
+          const normalized = value.replace(/\s+/g, ' ');
+          if (!areaTags.includes(normalized)) {
+            areaTags.push(normalized);
+          }
+        });
+        renderAreaTags();
+      };
+
+      const removeAreaTag = (index) => {
+        areaTags.splice(index, 1);
+        renderAreaTags();
+      };
+
+      const renderAreaTags = () => {
+        areaTagList.innerHTML = '';
+        areaTags.forEach((tag, index) => {
+          const chip = document.createElement('span');
+          chip.className = 'tag-chip';
+          chip.innerHTML = `${tag} <button type="button" aria-label="Remove ${tag}" data-index="${index}">&times;</button>`;
+          areaTagList.appendChild(chip);
+        });
+        areasHidden.value = areaTags.join(', ');
+      };
+
+      if (areasInput) {
+        areasInput.addEventListener('keydown', (event) => {
+          if (event.key === 'Enter' || event.key === ',') {
+            event.preventDefault();
+            addAreaTags(areasInput.value);
+            areasInput.value = '';
+          }
+        });
+
+        areasInput.addEventListener('blur', () => {
+          addAreaTags(areasInput.value);
+          areasInput.value = '';
+        });
+      }
+
+      if (areaTagList) {
+        areaTagList.addEventListener('click', (event) => {
+          const button = event.target.closest('button[data-index]');
+          if (!button) return;
+          const index = Number(button.dataset.index);
+          if (!Number.isNaN(index)) {
+            removeAreaTag(index);
+          }
+        });
+      }
 
       const showStep = (index) => {
         formSteps.forEach((step, stepIndex) => {
@@ -585,6 +646,11 @@
 
         backButton.disabled = index === 0;
         nextButton.textContent = index === formSteps.length - 1 ? 'Submit Request' : 'Next';
+
+        if (errorPanel) {
+          errorPanel.textContent = '';
+          errorPanel.classList.remove('visible');
+        }
 
         if (index === formSteps.length - 1) {
           updateSummary();
@@ -601,7 +667,18 @@
       });
 
       const validateStep = () => {
-        const fields = Array.from(formSteps[currentStep].querySelectorAll('input, select, textarea'));
+        if (currentStep === 0) {
+          if (!areasHidden.value.trim()) {
+            if (errorPanel) {
+              errorPanel.textContent = 'Add at least one target area.';
+              errorPanel.classList.add('visible');
+            }
+            if (areasInput) areasInput.focus();
+            return false;
+          }
+        }
+
+        const fields = Array.from(formSteps[currentStep].querySelectorAll('input:not([type="hidden"]), select, textarea'));
         return fields.reduce((valid, field) => {
           if (!field.checkValidity()) {
             field.reportValidity();
@@ -672,10 +749,7 @@
           return r.json();
         }).then(result => {
           console.log('submit result', result);
-          if (errorPanel) {
-            errorPanel.textContent = '';
-            errorPanel.classList.remove('visible');
-          }
+          if (errorPanel) errorPanel.textContent = '';
           formSteps.forEach(step => step.classList.remove('active'));
           if (formActions) formActions.style.display = 'none';
           successPanel.classList.add('visible');
@@ -683,7 +757,6 @@
           console.error('submit error', err);
           if (errorPanel) {
             errorPanel.textContent = 'Unable to send to WhatsApp right now. Please make sure the microservice is running on http://localhost:3001 and scan the QR if needed.';
-            errorPanel.classList.add('visible');
           }
         });
       });
