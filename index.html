@@ -521,6 +521,43 @@
       toggleBackToTop();
     }
 
+    const heroSection = document.querySelector('.hero');
+    const visualImage = document.querySelector('.visual-card img');
+    if (heroSection && visualImage) {
+      const applyHeroReveal = (progress) => {
+        const clamped = Math.min(Math.max(progress, 0), 1);
+        const inset = 45 - clamped * 45;
+        const scale = 1.14 - clamped * 0.14;
+        const translateY = 8 - clamped * 8;
+
+        visualImage.style.setProperty('--clip-left', `${inset}%`);
+        visualImage.style.setProperty('--clip-right', `${inset}%`);
+        visualImage.style.setProperty('--img-scale', scale.toFixed(3));
+        visualImage.style.setProperty('--img-translate', `${translateY}%`);
+      };
+
+      const startAutoReveal = () => {
+        const duration = 800;
+        const start = performance.now();
+
+        const step = (now) => {
+          const elapsed = now - start;
+          const progress = Math.min(elapsed / duration, 1);
+          const eased = 1 - Math.pow(1 - progress, 4);
+          applyHeroReveal(eased);
+
+          if (progress < 1) {
+            requestAnimationFrame(step);
+          }
+        };
+
+        requestAnimationFrame(step);
+      };
+
+      applyHeroReveal(0);
+      startAutoReveal();
+    }
+
     const howSection = document.querySelector('#how');
     const howCards = howSection ? Array.from(howSection.querySelectorAll('.feature-card')) : [];
     const glowClasses = ['glow-red', 'glow-yellow', 'glow-green'];
