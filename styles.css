@@ -1204,7 +1204,7 @@ nav a.button.button-primary{
     .visual-card {
       min-height: 24rem;
       max-height: 36rem;
-      padding: 2rem;
+      padding: 0.8rem;
     }
   }
 }
