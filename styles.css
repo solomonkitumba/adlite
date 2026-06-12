@@ -347,6 +347,7 @@ nav a.button.button-primary{
 }
 
 .visual-card img {
+  --clip-top: 100%;
   --clip-left: 45%;
   --clip-right: 45%;
   --img-scale: 1.14;
@@ -358,7 +359,7 @@ nav a.button.button-primary{
   object-position: center;
   display: block;
   border-radius: 1.8rem;
-  clip-path: inset(0 var(--clip-right) 0 var(--clip-left) round 1.8rem);
+  clip-path: inset(var(--clip-top) var(--clip-right) 0 var(--clip-left) round 1.8rem);
   transform: translateY(var(--img-translate)) scale(var(--img-scale));
   transition: transform 0.35s ease, clip-path 0.35s ease;
   will-change: transform, clip-path;

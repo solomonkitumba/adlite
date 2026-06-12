@@ -526,18 +526,20 @@
     if (heroSection && visualImage) {
       const applyHeroReveal = (progress) => {
         const clamped = Math.min(Math.max(progress, 0), 1);
-        const inset = 45 - clamped * 45;
+        const clipTop = 100 - clamped * 100;
+        const clipSide = 45 - clamped * 45;
         const scale = 1.14 - clamped * 0.14;
         const translateY = 8 - clamped * 8;
 
-        visualImage.style.setProperty('--clip-left', `${inset}%`);
-        visualImage.style.setProperty('--clip-right', `${inset}%`);
+        visualImage.style.setProperty('--clip-top', `${clipTop}%`);
+        visualImage.style.setProperty('--clip-left', `${clipSide}%`);
+        visualImage.style.setProperty('--clip-right', `${clipSide}%`);
         visualImage.style.setProperty('--img-scale', scale.toFixed(3));
         visualImage.style.setProperty('--img-translate', `${translateY}%`);
       };
 
       const startAutoReveal = () => {
-        const duration = 500;
+        const duration = 800;
         const start = performance.now();
 
         const step = (now) => {
