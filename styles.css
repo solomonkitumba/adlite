@@ -312,6 +312,7 @@ nav a.button.button-primary{
 }
 
 .visual-frame {
+  position: relative;
   background: #d9d1c7;
   padding: 2.5rem;
   border-radius: 2.5rem;
@@ -319,25 +320,31 @@ nav a.button.button-primary{
   transform: rotate(-3deg);
   width: min(100%, 34rem);
   margin-inline: auto;
+  overflow: hidden;
 }
 
-  .visual-card {
-    min-height: 24rem;
-    max-height: 36rem;
-    aspect-ratio: 3 / 4;
-    width: 100%;
-    max-width: 28rem;
-    background: #b98b5e;
-    border-radius: 2rem;
-    display: grid;
-    place-items: center;
-    padding: 3rem;
-    text-align: center;
-    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.08);
-    position: relative;
-    z-index: 1;
-    overflow: hidden;
-  }
+.visual-card {
+  position: relative;
+  min-height: 24rem;
+  max-height: 36rem;
+  aspect-ratio: 3 / 4;
+  width: 100%;
+  max-width: 28rem;
+  background: #b98b5e;
+  border-radius: 2rem;
+  overflow: hidden;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.08);
+  z-index: 1;
+}
+
+.visual-card img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  display: block;
+  border-radius: 7%;
+}
 
 .visual-title {
   font-size: clamp(2.5rem, 4vw, 3.75rem);

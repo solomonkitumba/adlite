@@ -63,8 +63,7 @@
           <div class="hero-visual">
             <div class="visual-frame">
               <div class="visual-card">
-                <div class="visual-title">THIS BAG<br />IS AN AD.</div>
-                <div class="visual-copy">Your brand. Printed. Carried. Seen.</div>
+                <img src="imgs/adllite%20front.jpg" alt="AdLite paper bag front view" />
               </div>
             </div>
             <div class="visual-callout">
@@ -547,8 +546,8 @@
       if (!howCards.length || glowRunning) return;
       glowRunning = true;
       setHowGlow(0);
-      glowTimeouts.push(setTimeout(() => setHowGlow(1), 4000));
-      glowTimeouts.push(setTimeout(() => setHowGlow(2), 8000));
+      glowTimeouts.push(setTimeout(() => setHowGlow(1), 3000));
+      glowTimeouts.push(setTimeout(() => setHowGlow(2), 6000));
     };
 
     if (howSection && howCards.length === 3) {
