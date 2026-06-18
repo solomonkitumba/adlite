@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Live Distribution Network</title>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+  <style>
+    body { margin:0; padding:0; }
+    header { padding: 12px 18px; background:#fff; border-bottom:1px solid #e6e6e6; }
+    .page-title { font-size: 18px; font-weight:700; color:#222 }
+    #map { height: calc(100vh - 64px); }
+    .info { position: absolute; top: 84px; right: 18px; background: rgba(255,255,255,0.95); padding:8px 12px; border-radius:6px; box-shadow:0 2px 8px rgba(0,0,0,0.12); font-weight:600 }
+    .leaflet-container { background: #f0f0f0 }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="page-title">Live Distribution Network — Shop counts by area</div>
+  </header>
+  <div id="map"></div>
+  <div class="info" id="total">Total shops: —</div>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script>
+    // Areas with approximate coordinates and sample shop counts
+    const areas = [
+      { name: 'Nakasero', lat: 0.3200, lng: 32.5850, count: 48 },
+      { name: 'Ntinda', lat: 0.3560, lng: 32.6015, count: 37 },
+      { name: 'Muyenga', lat: 0.3050, lng: 32.5940, count: 22 },
+      { name: 'Kira', lat: 0.3640, lng: 32.6200, count: 55 },
+      { name: 'Naalya', lat: 0.3610, lng: 32.6060, count: 18 },
+      { name: 'Najeera', lat: 0.3700, lng: 32.5800, count: 13 }
+    ];
+
+    const center = [0.346, 32.598];
+    const map = L.map('map', { zoomControl: true }).setView(center, 12);
+
+    // Greyscale tiles (Stamen Toner Lite)
+    L.tileLayer('https://stamen-tiles.a.ssl.fastly.net/toner-lite/{z}/{x}/{y}.png', {
+      attribution: 'Map tiles by Stamen Design, CC BY 3.0 — Data © OpenStreetMap contributors',
+      maxZoom: 18
+    }).addTo(map);
+
+    let total = 0;
+    areas.forEach(a => { total += a.count; });
+    document.getElementById('total').textContent = 'Total shops: ' + total;
+
+    areas.forEach(a => {
+      const html = `<div class="count-marker" title="${a.name}">${a.count}</div>`;
+      const icon = L.divIcon({ className: 'count-icon', html: html, iconSize: [36,36], iconAnchor: [18,18] });
+      const marker = L.marker([a.lat, a.lng], { icon }).addTo(map);
+      marker.bindPopup(`<strong>${a.name}</strong><br/>${a.count} shops registered`);
+      marker.bindTooltip(`${a.name}: ${a.count}`, { permanent: true, direction: 'top', offset: [0, -20], className: 'area-tooltip' });
+    });
+  </script>
+</body>
+</html>

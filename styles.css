@@ -9,6 +9,24 @@
   line-height: 1.5;
 }
 
+/* Marker style for live distribution counts */
+.count-marker {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 18px;
+  background: #2f2f2f;
+  color: #fff;
+  font-weight: 700;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.4);
+  border: 2px solid #e6e6e6;
+}
+
+/* Map container fallback */
+#map { height: 70vh; max-height: 780px; width: 100%; }
+
 /* Ensure nav links remain black in light mode (override accidental color changes) */
 @media (prefers-color-scheme: light), (prefers-color-scheme: no-preference) {
   .nav-links a {
