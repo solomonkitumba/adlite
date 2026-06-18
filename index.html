@@ -306,32 +306,28 @@
             <form id="campaign-form" class="campaign-form" novalidate>
               <div class="progress-steps" aria-label="Form steps">
                 <button type="button" class="progress-step active" data-step="1">
-                  <span class="progress-step-number">1</span>
-                  <div>
-                    <strong>Campaign</strong>
-                    <span>Package & areas</span>
-                  </div>
-                </button>
-                <button type="button" class="progress-step" data-step="2">
-                  <span class="progress-step-number">2</span>
-                  <div>
-                    <strong>Contact</strong>
-                    <span>Customer details</span>
-                  </div>
-                </button>
-                <button type="button" class="progress-step" data-step="3">
-                  <span class="progress-step-number">3</span>
-                  <div>
-                    <strong>Review</strong>
-                    <span>Confirm submission</span>
-                  </div>
-                </button>
+                    <div>
+                      <strong>Campaign</strong>
+                      <span>Package & areas</span>
+                    </div>
+                  </button>
+                  <button type="button" class="progress-step" data-step="2">
+                    <div>
+                      <strong>Contact</strong>
+                      <span>Customer details</span>
+                    </div>
+                  </button>
+                  <button type="button" class="progress-step" data-step="3">
+                    <div>
+                      <strong>Review</strong>
+                      <span>Confirm submission</span>
+                    </div>
+                  </button>
               </div>
 
               <div class="form-step active" data-step="1">
                 <div class="step-header">
                   <div>
-                    <span class="step-number">Step 1</span>
                     <h3>Choose your campaign</h3>
                   </div>
                   <div class="step-label">Select a package and target areas.</div>
@@ -363,7 +359,6 @@
               <div class="form-step" data-step="2">
                 <div class="step-header">
                   <div>
-                    <span class="step-number">Step 2</span>
                     <h3>Your contact details</h3>
                   </div>
                   <div class="step-label">Tell us who to reach and your business details.</div>
@@ -392,7 +387,7 @@
 
                   <div class="form-group full-width">
                     <label for="company-website">Website or social profile</label>
-                    <input type="url" id="company-website" name="companyWebsite" placeholder="https://..." />
+                    <input type="text" id="company-website" name="companyWebsite" placeholder="example.com or https://example.com" />
                   </div>
                 </div>
               </div>
@@ -400,7 +395,6 @@
               <div class="form-step" data-step="3">
                 <div class="step-header">
                   <div>
-                    <span class="step-number">Step 3</span>
                     <h3>Confirm your details</h3>
                   </div>
                   <div class="step-label">Review everything before you submit.</div>
@@ -780,6 +774,15 @@
           const el = campaignForm.querySelector(`[name="${name}"]`);
           payload[name] = el ? el.value : '';
         });
+
+        // normalize companyWebsite: allow input with or without protocol
+        if (payload.companyWebsite) {
+          let site = String(payload.companyWebsite).trim();
+          if (site && !/^https?:\/\//i.test(site)) {
+            site = 'https://' + site;
+          }
+          payload.companyWebsite = site;
+        }
 
         const apiUrl = window.CAMPAIGN_API_URL || 'http://localhost:3001/submit';
         fetch(apiUrl, {
