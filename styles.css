@@ -27,6 +27,9 @@
 /* Map container fallback */
 #map { height: 70vh; max-height: 780px; width: 100%; }
 
+/* Render raster tiles in greyscale for a neutral visual style */
+.leaflet-tile, .leaflet-tile-loaded, .leaflet-container img { filter: grayscale(100%) contrast(0.95) brightness(0.98) !important; }
+
 /* Ensure nav links remain black in light mode (override accidental color changes) */
 @media (prefers-color-scheme: light), (prefers-color-scheme: no-preference) {
   .nav-links a {
