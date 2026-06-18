@@ -1,4 +1,23 @@
+import React, { useEffect } from 'react';
+
 export default function AdLiteWebsite() {
+  useEffect(() => {
+    const href = 'imgs/favicon.png';
+    if (!document.querySelector('link[rel="icon"]')) {
+      const link = document.createElement('link');
+      link.rel = 'icon';
+      link.href = href;
+      link.type = 'image/png';
+      document.head.appendChild(link);
+    }
+    if (!document.querySelector('link[rel="apple-touch-icon"]')) {
+      const link2 = document.createElement('link');
+      link2.rel = 'apple-touch-icon';
+      link2.href = href;
+      document.head.appendChild(link2);
+    }
+  }, []);
+
   return (
     <div className="min-h-screen bg-[#f5f5f3] text-black font-sans">
       {/* NAVBAR */}
