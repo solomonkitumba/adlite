@@ -1212,6 +1212,26 @@ nav a.button.button-primary{
   border-top: 1px solid rgba(0, 0, 0, 0.05);
 }
 
+/* Map footer (compact) */
+.map-footer {
+  padding: 0.5rem 0 1.5rem;
+  border-top: 1px solid rgba(0,0,0,0.04);
+  background: rgba(245,245,243,0.97);
+}
+
+.map-footer .footer-menu a {
+  color: rgba(0,0,0,0.75);
+  text-decoration: none;
+  padding: 6px 8px;
+  border-radius: 6px;
+}
+
+.map-footer .footer-menu a:hover,
+.map-footer .footer-menu a:focus {
+  background: rgba(0,0,0,0.03);
+  text-decoration: underline;
+}
+
 .footer-grid {
   max-width: 1120px;
   margin: 0 auto;

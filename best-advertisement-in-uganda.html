@@ -135,5 +135,29 @@
       <a href="#top" class="back-to-top" aria-label="Back to top">↑</a>
     </footer>
   </div>
+</div>
+<script>
+  const menuToggle = document.querySelector('.mobile-menu-toggle');
+  const topbar = document.querySelector('.topbar');
+  const navLinks = document.querySelectorAll('.nav-links a');
+
+  if (menuToggle && topbar) {
+    menuToggle.addEventListener('click', () => {
+      const isOpen = topbar.classList.toggle('menu-open');
+      menuToggle.setAttribute('aria-expanded', isOpen);
+    });
+  }
+
+  if (navLinks.length && topbar && menuToggle) {
+    navLinks.forEach(link => {
+      link.addEventListener('click', () => {
+        if (topbar.classList.contains('menu-open')) {
+          topbar.classList.remove('menu-open');
+          menuToggle.setAttribute('aria-expanded', 'false');
+        }
+      });
+    });
+  }
+</script>
 </body>
 </html>
