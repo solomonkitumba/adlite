@@ -26,9 +26,24 @@ if (!TARGET_NUMBER) {
 }
 
 // Use LocalAuth to persist session in ./session
+const chromeExecutableCandidates = [
+  process.env.PUPPETEER_EXECUTABLE_PATH,
+  process.env.CHROME_PATH,
+  'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe',
+  'C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe',
+  path.join(process.env.LOCALAPPDATA || '', 'Google\\Chrome\\Application\\chrome.exe')
+].filter(Boolean);
+
+const resolvedChromeExecutable = chromeExecutableCandidates.find((candidatePath) => fs.existsSync(candidatePath));
+const puppeteerConfig = { headless: true };
+if (resolvedChromeExecutable) {
+  puppeteerConfig.executablePath = resolvedChromeExecutable;
+} else {
+  console.warn('WARNING: No local Chrome executable found. Set PUPPETEER_EXECUTABLE_PATH or CHROME_PATH if startup fails.');
+}
 const client = new Client({
   authStrategy: new LocalAuth({ clientId: 'adlite' }),
-  puppeteer: { headless: true }
+  puppeteer: puppeteerConfig
 });
 
 client.on('qr', (qr) => {
