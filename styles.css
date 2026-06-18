@@ -1209,6 +1209,25 @@ nav a.button.button-primary{
   text-decoration: underline;
 }
 
+/* Force footer social icons to be black and consistent */
+.footer-social-links .social-link {
+  color: #000 !important;
+  border-color: rgba(0, 0, 0, 0.06) !important;
+  background: rgba(0, 0, 0, 0.02) !important;
+  box-shadow: none !important;
+  animation: none !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+.footer-social-links .social-link svg {
+  width: 2.15rem;
+  height: 2.15rem;
+  display: block;
+  margin: 0 auto;
+}
+
 @media (min-width: 768px) {
   .mobile-menu-toggle {
     display: none !important;
