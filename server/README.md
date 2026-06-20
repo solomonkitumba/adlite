@@ -25,6 +25,50 @@ npm run dev
 
 The first run will show a QR in the terminal. Scan it with the phone that will send/receive messages. The session is persisted automatically in `.local-auth` and you won't need to scan again unless the session expires.
 
+Complete server setup
+---------------------
+
+1. Clone or download the repository and open the project folder:
+
+```bash
+git clone <repo-url> adlite-v1
+cd adlite-v1/server
+```
+
+2. Install the Node.js dependencies for the server:
+
+```bash
+npm install
+```
+
+3. Configure the required environment variables before starting the server:
+
+- `WHATSAPP_NUMBER` — recipient WhatsApp phone number in digits only, e.g. `256778597244`
+- `PORT` — optional, defaults to `3001`
+- `PUPPETEER_EXECUTABLE_PATH` or `CHROME_PATH` — optional on Windows if the built-in browser is not found
+
+You can set these in a terminal session or use a `.env` loader if you prefer.
+
+4. Start the server:
+
+```bash
+npm start
+```
+
+5. Scan the QR code with your WhatsApp phone when prompted to authenticate the session.
+
+6. Confirm the service is running by visiting:
+
+```bash
+http://localhost:3001/
+```
+
+7. The server exposes the distribution API at:
+
+- `GET /distribution`
+- `POST /distribution`
+- `POST /submit`
+
 Usage
 ------
 
