@@ -11,11 +11,15 @@
   <style>
     body { margin:0; padding:0; }
     .page-shell { min-height: 100vh; }
-    .page-header { padding: 2rem; background: rgba(245,245,243,0.92); border-bottom: 1px solid rgba(0,0,0,0.05); }
-    .page-title { font-size: 1.75rem; font-weight:700; color:#000; letter-spacing: -0.02em; margin: 0; }
-    .page-subtitle { font-size: 0.95rem; color: rgba(0,0,0,0.6); margin: 0.5rem 0 0 0; font-weight: 400; }
+    .page-header { display: flex; flex-direction: column; align-items: center; text-align: center; padding: 2.5rem 1.5rem; background: rgba(245,245,243,0.92); border-bottom: 1px solid rgba(0,0,0,0.05); }
+    .page-title { font-size: 2rem; font-weight: 700; color: #000; letter-spacing: -0.02em; margin: 0; max-width: 900px; }
+    .page-subtitle { font-size: 1rem; color: rgba(0,0,0,0.65); margin: 0.75rem 0 0 0; font-weight: 400; max-width: 860px; line-height: 1.65; }
     #map { height: calc(100vh - 180px); width: 100%; }
-    .info { position: absolute; top: 220px; right: 20px; background: rgba(255,255,255,0.96); padding: 12px 16px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); font-weight: 600; font-size: 0.9rem; color: #000; border: 1px solid rgba(0,0,0,0.08); }
+    .info { position: absolute; top: 220px; right: 20px; background: rgba(255,255,255,0.96); padding: 12px 16px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); font-weight: 600; font-size: 0.9rem; color: #000; border: 1px solid rgba(0,0,0,0.08); z-index: 2000; }
+    .map-legend { position: absolute; top: 320px; right: 20px; width: 220px; background: rgba(255,255,255,0.96); padding: 14px 16px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); font-size: 0.9rem; color: #000; border: 1px solid rgba(0,0,0,0.08); line-height: 1.45; z-index: 2000; }
+    .map-legend strong { display: block; margin-bottom: 0.6rem; font-size: 0.95rem; }
+    .map-legend ul { margin: 0; padding-left: 1.2rem; }
+    .map-legend li { margin: 0.35rem 0; }
     .leaflet-container { background: #f5f5f3; }
   </style>
 </head>
@@ -34,7 +38,8 @@
         <a href="index.html#why">Why AdLite</a>
         <a href="index.html#pricing">Pricing</a>
         <a href="index.html#locations">Locations</a>
-        <a href="index.html#contact">Contact</a>
+        <a href="live-distribution.html">Live Map</a>
+        <a href="distribution-report.html">Report</a>
       </div>
     </nav>
     <div class="page-header">
@@ -43,6 +48,13 @@
     </div>
     <div id="map"></div>
     <div class="info" id="total">Total shops: —</div>
+    <div class="map-legend" aria-label="Map legend">
+      <strong>Legend</strong>
+      <ul>
+        <li><strong>Marker number</strong> = shops registered</li>
+        <li><strong>Popup</strong> = paper bags distributed</li>
+      </ul>
+    </div>
     <footer class="footer map-footer" aria-label="Map footer">
       <div style="max-width:1100px;margin:18px auto;padding:12px 20px;display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap;">
         <nav class="footer-menu" style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;">
@@ -60,14 +72,29 @@
 
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script>
-    // Areas with approximate coordinates and sample shop counts
-    const areas = [
-      { name: 'Nakasero', lat: 0.3200, lng: 32.5850, count: 48 },
-      { name: 'Ntinda', lat: 0.3560, lng: 32.6015, count: 37 },
-      { name: 'Muyenga', lat: 0.3050, lng: 32.5940, count: 22 },
-      { name: 'Kira', lat: 0.3640, lng: 32.6200, count: 55 },
-      { name: 'Naalya', lat: 0.3610, lng: 32.6060, count: 18 },
-      { name: 'Najeera', lat: 0.3700, lng: 32.5800, count: 13 }
+    const areaCoordinates = {
+      'Najeera': [0.3700, 32.5800],
+      'Nansana': [0.3530, 32.5200],
+      'Wakiso': [0.4000, 32.5200],
+      'Kira': [0.3640, 32.6200],
+      'Kiwatule': [0.3600, 32.6400],
+      'Ntinda': [0.3560, 32.6015],
+      'Nakawa': [0.3350, 32.6100],
+      'Bugolobi': [0.3150, 32.5900],
+      'Nakasero': [0.3200, 32.5850],
+      'Muyenga': [0.3050, 32.5940],
+      'Naalya': [0.3610, 32.6060]
+    };
+
+    const defaultTotals = [
+      { name: 'Najeera', bags: 25000, shops: 120, reports: 1 },
+      { name: 'Nansana', bags: 26000, shops: 143, reports: 1 },
+      { name: 'Wakiso', bags: 32000, shops: 180, reports: 1 },
+      { name: 'Kira', bags: 21000, shops: 135, reports: 1 },
+      { name: 'Kiwatule', bags: 17500, shops: 95, reports: 1 },
+      { name: 'Ntinda', bags: 14800, shops: 88, reports: 1 },
+      { name: 'Nakawa', bags: 16000, shops: 103, reports: 1 },
+      { name: 'Bugolobi', bags: 15000, shops: 86, reports: 1 }
     ];
 
     const center = [0.346, 32.598];
@@ -80,17 +107,152 @@
       crossOrigin: true
     }).addTo(map);
 
-    let total = 0;
-    areas.forEach(a => { total += a.count; });
-    document.getElementById('total').textContent = 'Total shops: ' + total;
+    const distributionApiUrl = window.DISTRIBUTION_API_URL || 'http://localhost:3001/distribution';
+    const markers = L.layerGroup().addTo(map);
+    const statusPanel = document.getElementById('total');
 
-    areas.forEach(a => {
-      const html = `<div class="count-marker" title="${a.name}">${a.count}</div>`;
-      const icon = L.divIcon({ className: 'count-icon', html: html, iconSize: [36,36], iconAnchor: [18,18] });
-      const marker = L.marker([a.lat, a.lng], { icon }).addTo(map);
-      marker.bindPopup(`<strong>${a.name}</strong><br/>${a.count} shops registered`);
-      marker.bindTooltip(`${a.name}: ${a.count}`, { permanent: true, direction: 'top', offset: [0, -20], className: 'area-tooltip' });
+    const coordinateCacheKey = (name) => `distribution-area-coords:${name.toLowerCase().replace(/\s+/g, '_')}`;
+
+    const getCachedCoords = (name) => {
+      try {
+        const item = localStorage.getItem(coordinateCacheKey(name));
+        return item ? JSON.parse(item) : null;
+      } catch (err) {
+        return null;
+      }
+    };
+
+    const cacheCoords = (name, coords) => {
+      try {
+        localStorage.setItem(coordinateCacheKey(name), JSON.stringify(coords));
+      } catch (err) {
+        // ignore storage errors
+      }
+    };
+
+    const geocodeArea = async (name) => {
+      const query = encodeURIComponent(`${name}, Uganda`);
+      const url = `https://nominatim.openstreetmap.org/search?format=json&q=${query}&limit=1`;
+      const response = await fetch(url, { headers: { 'Accept-Language': 'en' } });
+      if (!response.ok) {
+        throw new Error('Geocoding failed');
+      }
+      const results = await response.json();
+      if (!Array.isArray(results) || results.length === 0) {
+        throw new Error('No geocoding result');
+      }
+      return { lat: Number(results[0].lat), lng: Number(results[0].lon) };
+    };
+
+    const getCoordinatesForArea = async (name) => {
+      if (areaCoordinates[name]) {
+        return { lat: areaCoordinates[name][0], lng: areaCoordinates[name][1] };
+      }
+
+      const cached = getCachedCoords(name);
+      if (cached && Number.isFinite(cached.lat) && Number.isFinite(cached.lng)) {
+        return cached;
+      }
+
+      const coords = await geocodeArea(name);
+      cacheCoords(name, coords);
+      return coords;
+    };
+
+    const createMarker = (area) => {
+      const shopsLabel = Number(area.shops) ? area.shops : 1;
+      const html = `<div class="count-marker" title="${area.name}">${shopsLabel}</div>`;
+      const icon = L.divIcon({ className: 'count-icon', html: html, iconSize: [42,42], iconAnchor: [21,21] });
+      const marker = L.marker([area.lat, area.lng], { icon });
+      marker.bindPopup(`<strong>${area.name}</strong><br/>${area.bags} paper bags distributed<br/>${shopsLabel} shops registered`);
+      marker.bindTooltip(`${area.name}: ${shopsLabel} shops`, { permanent: true, direction: 'top', offset: [0, -22], className: 'area-tooltip' });
+      marker.addTo(markers);
+    };
+
+    const setStatusText = (total, updatedAt) => {
+      const prefix = updatedAt ? `Last updated: ${updatedAt}` : 'Live distribution data';
+      statusPanel.innerHTML = `${prefix}<br/>Total bags: ${total}`;
+    };
+
+    const clearMarkers = () => {
+      markers.clearLayers();
+    };
+
+    const mergeDefaultTotals = (actualTotals) => {
+      const merged = {};
+
+      defaultTotals.forEach((item) => {
+        merged[item.name.toLowerCase()] = {
+          name: item.name,
+          bags: Number(item.bags) || 0,
+          shops: Number(item.shops) || 1,
+          reports: Number(item.reports) || 0
+        };
+      });
+
+      if (Array.isArray(actualTotals)) {
+        actualTotals.forEach((item) => {
+          const name = String(item.name || '').trim();
+          if (!name) {
+            return;
+          }
+          const key = name.toLowerCase();
+          const current = merged[key] || { name, bags: 0, shops: 1, reports: 0 };
+          current.bags = Number(current.bags || 0) + Number(item.bags || 0);
+          current.reports = Number(current.reports || 0) + Number(item.reports || 0);
+          current.name = name;
+          merged[key] = current;
+        });
+      }
+
+      return Object.values(merged);
+    };
+
+    const renderAreas = async (totals) => {
+      clearMarkers();
+      const displayTotals = mergeDefaultTotals(totals);
+      const entries = displayTotals.map(async (item) => {
+        const name = String(item.name || 'Unknown');
+        const count = Number(item.bags) || 0;
+        const shops = Number(item.shops) || 1;
+        const reports = Number(item.reports) || 0;
+        try {
+          const coords = await getCoordinatesForArea(name);
+          return { name, lat: coords.lat, lng: coords.lng, bags: count, shops, reports };
+        } catch (err) {
+          return { name, lat: center[0], lng: center[1], bags: count, shops, reports };
+        }
+      });
+      const areas = await Promise.all(entries);
+      const total = areas.reduce((sum, area) => sum + Number(area.bags || 0), 0);
+      const updatedAt = new Date().toLocaleTimeString();
+      setStatusText(total, updatedAt);
+      areas.forEach(createMarker);
+    };
+
+    const loadDistribution = () => {
+      fetch(distributionApiUrl)
+        .then((response) => response.json())
+        .then((data) => {
+          if (!data || !Array.isArray(data.totals)) {
+            throw new Error('Invalid distribution response');
+          }
+          renderAreas(data.totals);
+        })
+        .catch((err) => {
+          console.warn('Unable to load distribution totals:', err);
+          renderAreas([]);
+        });
+    };
+
+    window.addEventListener('storage', (event) => {
+      if (event.key === 'distribution-updated') {
+        loadDistribution();
+      }
     });
+
+    loadDistribution();
+    setInterval(loadDistribution, 15000);
   </script>
   <script>
     const menuToggle = document.querySelector('.mobile-menu-toggle');

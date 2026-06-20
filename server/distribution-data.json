@@ -1,0 +1,51 @@
+[
+  {
+    "area": "Nakasero",
+    "bags": 2500,
+    "date": "2026-05-28",
+    "notes": "all went to ladies in markets",
+    "createdAt": "2026-06-20T18:11:13.942Z"
+  },
+  {
+    "area": "Wakiso",
+    "bags": 1500,
+    "date": "2026-05-15",
+    "notes": "expanding to wakiso",
+    "createdAt": "2026-06-20T18:12:29.659Z"
+  },
+  {
+    "area": "Nansana",
+    "bags": 1000,
+    "date": "2026-06-01",
+    "notes": "extra notes",
+    "createdAt": "2026-06-20T18:15:56.129Z"
+  },
+  {
+    "area": "Najeera",
+    "bags": 1200,
+    "date": "2026-06-05",
+    "notes": "test",
+    "createdAt": "2026-06-20T18:19:14.234Z"
+  },
+  {
+    "area": "Bugolobi",
+    "bags": 1000,
+    "date": "2026-06-26",
+    "notes": "test",
+    "createdAt": "2026-06-20T18:47:35.607Z"
+  },
+  {
+    "area": "Nansana",
+    "bags": 1000,
+    "date": "2026-06-01",
+    "notes": "",
+    "createdAt": "2026-06-20T18:48:47.719Z"
+  },
+  {
+    "area": "Bugolobi",
+    "bags": 1850,
+    "date": "2026-06-20",
+    "notes": "",
+    "createdAt": "2026-06-20T18:51:50.779Z"
+  }
+]

@@ -1,0 +1,244 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Report Distribution — AdLite</title>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="icon" href="imgs/favicon.png" type="image/png" />
+  <link rel="apple-touch-icon" href="imgs/favicon.png" />
+  <style>
+    body { margin:0; padding:0; }
+    .page-shell { min-height: 100vh; }
+    .page-header { display: flex; flex-direction: column; align-items: center; text-align: center; padding: 2.5rem 1.5rem; }
+    .page-title { font-size: 2rem; font-weight: 700; margin: 0; }
+    .page-subtitle { font-size: 1rem; color: rgba(0,0,0,0.65); margin-top: 0.75rem; max-width: 780px; line-height: 1.7; }
+    .report-panel { max-width: 760px; margin: 0 auto; padding: 1.75rem; background: rgba(255,255,255,0.96); border-radius: 24px; border: 1px solid rgba(0,0,0,0.08); box-shadow: 0 18px 50px rgba(0,0,0,0.08); }
+    .report-panel h2 { margin: 0 0 0.75rem; color: #000; font-size: 2rem; }
+    .report-panel p { margin: 0 0 1.5rem; color: rgba(0,0,0,0.65); line-height:1.75; }
+    .form-group { display: grid; gap: 0.75rem; margin-bottom: 1.25rem; }
+    .form-group label { font-weight: 600; color: #111; }
+    .form-group input,
+    .form-group textarea { width: 100%; padding: 0.95rem 1rem; border: 1px solid rgba(0,0,0,0.16); border-radius: 14px; font-size: 1rem; }
+    .form-group textarea { min-height: 140px; resize: vertical; }
+    .form-actions { display: flex; flex-wrap: wrap; gap: 1rem; align-items: center; }
+    .form-note { margin-top: 0.5rem; font-size: 0.95rem; color: rgba(0,0,0,0.72); min-height: 1.4rem; transition: opacity 0.2s ease; opacity: 0; }
+    .form-note.visible { opacity: 1; }
+    .form-status, .form-error { margin-top: 0.75rem; font-weight: 600; min-height: 1.5rem; opacity: 0; transition: opacity 0.2s ease; }
+    .form-status.visible { color: #1b5e20; opacity: 1; }
+    .form-error.visible { color: #b00020; opacity: 1; }
+    .note-box { margin-top: 1.5rem; padding: 1rem 1.15rem; border-radius: 16px; background: rgba(0,0,0,0.04); color: rgba(0,0,0,0.72); }
+    @media (max-width: 860px) {
+      .page-shell { padding: 1rem; }
+      .report-panel { margin: 0 0.5rem; }
+    }
+  </style>
+</head>
+<body>
+  <div class="page-shell">
+    <nav class="topbar">
+      <a href="index.html" class="brand">AdLite</a>
+      <button class="mobile-menu-toggle" type="button" aria-label="Toggle navigation" aria-expanded="false">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+      <div class="nav-links">
+        <a href="index.html">Home</a>
+        <a href="index.html#how">How It Works</a>
+        <a href="index.html#why">Why AdLite</a>
+        <a href="index.html#pricing">Pricing</a>
+        <a href="index.html#locations">Locations</a>
+        <a href="live-distribution.html">Live Map</a>
+      </div>
+    </nav>
+
+    <div class="page-header">
+      <h1 class="page-title">Report a Distribution</h1>
+      <p class="page-subtitle">Send a new paper bag distribution report and have it reflected on the live map.</p>
+    </div>
+
+    <div class="report-panel">
+      <h2>Distribution details</h2>
+      <p>Fill in the area where the bags were distributed and the number of bags delivered. This data is sent to the live distribution service so the map updates automatically.</p>
+
+      <form id="report-form">
+        <div class="form-group">
+          <label for="area">Area / Location</label>
+          <input id="area" name="area" type="text" list="areas-list" placeholder="E.g. Nakasero" required autocomplete="off" />
+          <datalist id="areas-list"></datalist>
+          <div id="existing-area-info" class="form-note" aria-live="polite"></div>
+        </div>
+
+        <div class="form-group">
+          <label for="bags">Number of bags distributed</label>
+          <input id="bags" name="bags" type="number" min="1" placeholder="E.g. 45" required />
+        </div>
+
+        <div class="form-group">
+          <label for="date">Date</label>
+          <input id="date" name="date" type="date" />
+        </div>
+
+        <div class="form-group">
+          <label for="notes">Notes (optional)</label>
+          <textarea id="notes" name="notes" placeholder="Any extra details about the distribution"></textarea>
+        </div>
+
+        <div class="form-actions">
+          <button class="button button-primary" type="submit">Submit report</button>
+          <a class="button button-secondary" href="live-distribution.html">View live map</a>
+        </div>
+        <div id="status-message" class="form-status" aria-live="polite"></div>
+        <div id="error-message" class="form-error" aria-live="assertive"></div>
+      </form>
+
+      <div class="note-box">
+        Note: This service uses the local distribution microservice at <code>http://localhost:3001/distribution</code>. Make sure the server is running to update the live map.
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const reportForm = document.getElementById('report-form');
+    const statusMessage = document.getElementById('status-message');
+    const errorMessage = document.getElementById('error-message');
+    const submitButton = reportForm.querySelector('button[type="submit"]');
+    const areaInput = document.getElementById('area');
+    const existingAreaInfo = document.getElementById('existing-area-info');
+    const areasList = document.getElementById('areas-list');
+    const apiUrl = window.DISTRIBUTION_API_URL || 'http://localhost:3001/distribution';
+    let existingAreas = [];
+
+    const setExistingAreaInfo = (text) => {
+      existingAreaInfo.textContent = text;
+      existingAreaInfo.classList.toggle('visible', Boolean(text));
+    };
+
+    const normalizeArea = (value) => String(value || '').trim().toLowerCase();
+
+    const refreshAreaOptions = () => {
+      areasList.innerHTML = existingAreas
+        .map((area) => `<option value="${area.name}"></option>`)
+        .join('');
+    };
+
+    const updateExistingAreaMessage = (value) => {
+      const normalized = normalizeArea(value);
+      const match = existingAreas.find((area) => normalizeArea(area.name) === normalized);
+      if (match) {
+        setExistingAreaInfo(`Existing area detected: ${match.name}. Previously distributed ${match.bags} bags across ${match.reports} report(s). New bags will be added to this location.`);
+      } else {
+        setExistingAreaInfo('');
+      }
+    };
+
+    const loadExistingAreas = async () => {
+      try {
+        const response = await fetch(apiUrl);
+        if (!response.ok) return;
+        const data = await response.json();
+        if (!data || !Array.isArray(data.totals)) return;
+        existingAreas = data.totals;
+        refreshAreaOptions();
+      } catch (err) {
+        console.warn('Unable to load existing distribution areas:', err);
+      }
+    };
+
+    areaInput.addEventListener('input', (event) => {
+      const typed = event.target.value;
+      updateExistingAreaMessage(typed);
+    });
+
+    loadExistingAreas();
+
+    const showStatus = (message) => {
+      statusMessage.textContent = message;
+      statusMessage.classList.add('visible');
+      errorMessage.classList.remove('visible');
+    };
+
+    const showError = (message) => {
+      errorMessage.textContent = message;
+      errorMessage.classList.add('visible');
+      statusMessage.classList.remove('visible');
+    };
+
+    reportForm.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      statusMessage.textContent = '';
+      errorMessage.textContent = '';
+      statusMessage.classList.remove('visible');
+      errorMessage.classList.remove('visible');
+      submitButton.disabled = true;
+
+      const formData = new FormData(reportForm);
+      const area = String(formData.get('area') || '').trim();
+      const bags = Number(formData.get('bags'));
+      const date = formData.get('date') ? String(formData.get('date')).trim() : '';
+      const notes = String(formData.get('notes') || '').trim();
+
+      if (!area) {
+        submitButton.disabled = false;
+        showError('Please enter the area where bags were distributed.');
+        return;
+      }
+      if (!Number.isFinite(bags) || bags < 1) {
+        submitButton.disabled = false;
+        showError('Please enter a valid number of bags.');
+        return;
+      }
+
+      showStatus('Submitting report...');
+
+      try {
+        const response = await fetch(apiUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ area, bags, date, notes })
+        });
+
+        if (!response.ok) {
+          const body = await response.text();
+          throw new Error(body || `Status ${response.status}`);
+        }
+
+        await response.json();
+        reportForm.reset();
+        localStorage.setItem('distribution-updated', Date.now().toString());
+        showStatus('Report submitted successfully. The live map will update automatically.');
+      } catch (err) {
+        showError('Unable to submit report. Ensure the server is running at http://localhost:3001.');
+        console.error(err);
+      } finally {
+        submitButton.disabled = false;
+      }
+    });
+  </script>
+
+  <script>
+    const menuToggle = document.querySelector('.mobile-menu-toggle');
+    const topbar = document.querySelector('.topbar');
+    const navLinks = document.querySelectorAll('.nav-links a');
+
+    if (menuToggle && topbar) {
+      menuToggle.addEventListener('click', () => {
+        const isOpen = topbar.classList.toggle('menu-open');
+        menuToggle.setAttribute('aria-expanded', isOpen);
+      });
+    }
+
+    if (navLinks.length && topbar && menuToggle) {
+      navLinks.forEach(link => {
+        link.addEventListener('click', () => {
+          if (topbar.classList.contains('menu-open')) {
+            topbar.classList.remove('menu-open');
+            menuToggle.setAttribute('aria-expanded', 'false');
+          }
+        });
+      });
+    }
+  </script>
+</body>
+</html>

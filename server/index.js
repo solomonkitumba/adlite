@@ -17,6 +17,44 @@ app.use((req, res, next) => {
 });
 app.use(bodyParser.json());
 
+const distributionDataFile = path.join(__dirname, 'distribution-data.json');
+let distributionReports = [];
+
+const loadDistributionData = () => {
+  try {
+    distributionReports = JSON.parse(fs.readFileSync(distributionDataFile, 'utf8')) || [];
+  } catch (err) {
+    if (err.code !== 'ENOENT') {
+      console.error('Unable to load distribution data:', err);
+    }
+    distributionReports = [];
+  }
+};
+
+const saveDistributionData = () => {
+  try {
+    fs.writeFileSync(distributionDataFile, JSON.stringify(distributionReports, null, 2), 'utf8');
+  } catch (err) {
+    console.error('Unable to save distribution data:', err);
+  }
+};
+
+const aggregateDistributionByArea = (reports) => {
+  const areaMap = {};
+  reports.forEach((report) => {
+    const key = String(report.area || '').trim() || 'Unknown';
+    const bags = Number(report.bags) || 0;
+    if (!areaMap[key]) {
+      areaMap[key] = { name: key, bags: 0, reports: 0 };
+    }
+    areaMap[key].bags += bags;
+    areaMap[key].reports += 1;
+  });
+  return Object.values(areaMap);
+};
+
+loadDistributionData();
+
 // Config via env
 const PORT = process.env.PORT || 3001;
 const TARGET_NUMBER = process.env.WHATSAPP_NUMBER || '256778597244'; // digits only, e.g. 256778597244
@@ -71,6 +109,55 @@ function formatPhone(digits) {
   // whatsapp-web.js expects number@c.us
   return `${cleaned}@c.us`;
 }
+
+app.get('/distribution', (req, res) => {
+  const totals = aggregateDistributionByArea(distributionReports);
+  return res.json({ ok: true, reports: distributionReports, totals });
+});
+
+app.post('/distribution', async (req, res) => {
+  const data = req.body || {};
+  const area = String(data.area || '').trim();
+  const bags = Number(data.bags);
+  const date = data.date ? String(data.date).trim() : '';
+  const notes = data.notes ? String(data.notes).trim() : '';
+
+  if (!area || !Number.isFinite(bags) || bags <= 0) {
+    return res.status(400).json({ ok: false, error: 'Area and bags are required. Bags must be a positive number.' });
+  }
+
+  const report = {
+    area,
+    bags,
+    date: date || new Date().toISOString().slice(0, 10),
+    notes,
+    createdAt: new Date().toISOString()
+  };
+
+  distributionReports.push(report);
+  saveDistributionData();
+
+  const numberId = formatPhone(process.env.WHATSAPP_NUMBER || TARGET_NUMBER);
+  const lines = [
+    '*New Distribution Report*',
+    `*Area:* ${report.area}`,
+    `*Bags distributed:* ${report.bags}`,
+    `*Date:* ${report.date}`
+  ];
+  if (report.notes) lines.push(`*Notes:* ${report.notes}`);
+  lines.push(`_Reported at ${new Date().toLocaleString()}_`);
+
+  const message = lines.join('\n');
+  if (numberId) {
+    try {
+      await client.sendMessage(numberId, message);
+    } catch (err) {
+      console.error('send distribution report to WhatsApp failed', err && err.message);
+    }
+  }
+
+  return res.json({ ok: true, report, totals: aggregateDistributionByArea(distributionReports) });
+});
 
 app.post('/submit', async (req, res) => {
   const data = req.body || {};
