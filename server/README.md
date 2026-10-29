@@ -43,7 +43,9 @@ npm install
 
 3. Configure the required environment variables before starting the server:
 
-- `WHATSAPP_NUMBER` — recipient WhatsApp phone number in digits only, e.g. `256778597244`
+- `WHATSAPP_NUMBER` — required recipient WhatsApp phone number in digits only, e.g. `256778597244`
+- `DISTRIBUTION_WRITE_TOKEN` — required bearer token for creating distribution reports
+- `ALLOWED_ORIGINS` — comma-separated website origins allowed to call the API
 - `PORT` — optional, defaults to `3001`
 - `PUPPETEER_EXECUTABLE_PATH` or `CHROME_PATH` — optional on Windows if the built-in browser is not found
 
@@ -69,6 +71,8 @@ http://localhost:3001/
 - `POST /distribution`
 - `POST /submit`
 
+Distribution writes require `Authorization: Bearer <DISTRIBUTION_WRITE_TOKEN>`.
+
 Usage
 ------
 
@@ -82,7 +86,12 @@ curl -X POST http://localhost:3001/submit \
   -d '{"package":"Starter","areas":"Nakasero, Makindye","fullName":"Solomon","email":"you@example.com","phone":"+256777...","companyName":"MyCo"}'
 ```
 
-The microservice will format the data and forward it to the configured WhatsApp number.
+The microservice will format the data and forward it to the configured WhatsApp number. The WhatsApp session must be ready before campaign requests can be sent.
+
+Frontend deployment
+-------------------
+
+Set `window.AD_LITE_API_BASE_URL` in `site-config.js` when the API is hosted on a different origin. Leave it blank when a reverse proxy exposes the API under the same origin as the website. Set `window.AD_LITE_DISTRIBUTION_WRITE_TOKEN` for the distribution-report page; this is an access-control token, not a secret suitable for protecting a public website.
 
 Notes
 ------

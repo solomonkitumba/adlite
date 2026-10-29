@@ -18,6 +18,7 @@
   <meta name="twitter:title" content="AdLite | Street-Level Advertising in Kampala" />
   <meta name="twitter:description" content="We turn everyday paper bags into moving billboards distributed across Kampala — hyperlocal, reusable, and highly visible." />
   <link rel="stylesheet" href="styles.css" />
+  <script src="site-config.js"></script>
   <link rel="icon" href="imgs/favicon.png" type="image/png" />
   <link rel="apple-touch-icon" href="imgs/favicon.png" />
   <script type="application/ld+json">
@@ -641,11 +642,17 @@
       };
 
       const renderAreaTags = () => {
-        areaTagList.innerHTML = '';
+        areaTagList.replaceChildren();
         areaTags.forEach((tag, index) => {
           const chip = document.createElement('span');
           chip.className = 'tag-chip';
-          chip.innerHTML = `${tag} <button type="button" aria-label="Remove ${tag}" data-index="${index}">&times;</button>`;
+          chip.appendChild(document.createTextNode(`${tag} `));
+          const removeButton = document.createElement('button');
+          removeButton.type = 'button';
+          removeButton.setAttribute('aria-label', `Remove ${tag}`);
+          removeButton.dataset.index = index;
+          removeButton.textContent = '×';
+          chip.appendChild(removeButton);
           areaTagList.appendChild(chip);
         });
         areasHidden.value = areaTags.join(', ');
@@ -787,7 +794,8 @@
           payload.companyWebsite = site;
         }
 
-        const apiUrl = window.CAMPAIGN_API_URL || 'http://localhost:3001/submit';
+        const apiBaseUrl = window.AD_LITE_API_BASE_URL || (window.location.hostname === 'localhost' ? 'http://localhost:3001' : '');
+        const apiUrl = `${apiBaseUrl}/submit`;
         fetch(apiUrl, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -807,7 +815,7 @@
         }).catch(err => {
           console.error('submit error', err);
           if (errorPanel) {
-            errorPanel.textContent = 'Unable to send to WhatsApp right now. Please make sure the microservice is running on http://localhost:3001 and scan the QR if needed.';
+            errorPanel.textContent = 'Unable to send your request right now. Please try again or contact AdLite directly.';
           }
         });
       });

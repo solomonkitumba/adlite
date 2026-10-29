@@ -5,12 +5,14 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Live Distribution Network — AdLite</title>
   <link rel="stylesheet" href="../styles.css">
+  <script src="site-config.js"></script>
   <link rel="icon" href="../imgs/favicon.png" type="image/png" />
   <link rel="apple-touch-icon" href="../imgs/favicon.png" />
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
   <style>
     body { margin:0; padding:0; }
     .page-shell { min-height: 100vh; }
+    #total { white-space: pre-line; }
     .page-header { display: flex; flex-direction: column; align-items: center; text-align: center; padding: 2.5rem 1.5rem; background: rgba(245,245,243,0.92); border-bottom: 1px solid rgba(0,0,0,0.05); }
     .page-title { font-size: 2rem; font-weight: 700; color: #000; letter-spacing: -0.02em; margin: 0; max-width: 900px; }
     .page-subtitle { font-size: 1rem; color: rgba(0,0,0,0.65); margin: 0.75rem 0 0 0; font-weight: 400; max-width: 860px; line-height: 1.65; }
@@ -107,7 +109,8 @@
       crossOrigin: true
     }).addTo(map);
 
-    const distributionApiUrl = window.DISTRIBUTION_API_URL || 'http://localhost:3001/distribution';
+    const apiBaseUrl = window.AD_LITE_API_BASE_URL || (window.location.hostname === 'localhost' ? 'http://localhost:3001' : '');
+    const distributionApiUrl = `${apiBaseUrl}/distribution`;
     const markers = L.layerGroup().addTo(map);
     const statusPanel = document.getElementById('total');
 
@@ -159,19 +162,24 @@
       return coords;
     };
 
+    const escapeHtml = (value) => String(value ?? '')
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;').replace(/'/g, '&#039;');
+
     const createMarker = (area) => {
       const shopsLabel = Number(area.shops) ? area.shops : 1;
-      const html = `<div class="count-marker" title="${area.name}">${shopsLabel}</div>`;
+      const safeName = escapeHtml(area.name);
+      const html = `<div class="count-marker" title="${safeName}">${shopsLabel}</div>`;
       const icon = L.divIcon({ className: 'count-icon', html: html, iconSize: [42,42], iconAnchor: [21,21] });
       const marker = L.marker([area.lat, area.lng], { icon });
-      marker.bindPopup(`<strong>${area.name}</strong><br/>${area.bags} paper bags distributed<br/>${shopsLabel} shops registered`);
+      marker.bindPopup(`<strong>${safeName}</strong><br/>${Number(area.bags) || 0} paper bags distributed<br/>${shopsLabel} shops registered`);
       marker.bindTooltip(`${area.name}: ${shopsLabel} shops`, { permanent: true, direction: 'top', offset: [0, -22], className: 'area-tooltip' });
       marker.addTo(markers);
     };
 
     const setStatusText = (total, updatedAt) => {
       const prefix = updatedAt ? `Last updated: ${updatedAt}` : 'Live distribution data';
-      statusPanel.innerHTML = `${prefix}<br/>Total bags: ${total}`;
+      statusPanel.textContent = `${prefix}\nTotal bags: ${total}`;
     };
 
     const clearMarkers = () => {

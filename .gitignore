@@ -1,9 +1,12 @@
 # Ignore WhatsApp Web session data from whatsapp-web.js
 server/.wwebjs_auth/
+server/.wwebjs_cache/
+server/*.tmp
 
 # Ignore Node.js dependencies
 node_modules/
 server/node_modules/
+scripts/__pycache__/
 
 # Ignore OS files
 .DS_Store

@@ -7,7 +7,7 @@
     <priority>1.00</priority>
   </url>
   <url>
-    <loc>https://solomonkitumba.github.io/adlite/live-map.html</loc>
+    <loc>https://solomonkitumba.github.io/adlite/live-distribution.html</loc>
     <lastmod>2026-05-26</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
@@ -29,5 +29,11 @@
     <lastmod>2026-06-18</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://solomonkitumba.github.io/adlite/distribution-report.html</loc>
+    <lastmod>2026-06-18</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
   </url>
 </urlset>

@@ -5,17 +5,43 @@ const bodyParser = require('body-parser');
 const cors = require('cors');
 const { Client, LocalAuth } = require('whatsapp-web.js');
 const qrcode = require('qrcode-terminal');
+const { cleanText, validateDistributionPayload } = require('./validation');
 
 const app = express();
-app.use(cors({ origin: true }));
-app.options('*', cors({ origin: true }));
+const allowedOrigins = (process.env.ALLOWED_ORIGINS || 'http://localhost:8080,http://localhost:3001')
+  .split(',').map((origin) => origin.trim()).filter(Boolean);
+app.use(cors({ origin: allowedOrigins, methods: ['GET', 'POST', 'OPTIONS'], allowedHeaders: ['Content-Type', 'Authorization'] }));
+app.use(bodyParser.json({ limit: '32kb' }));
+app.use((err, req, res, next) => {
+  if (err.type === 'entity.too.large') return res.status(413).json({ ok: false, error: 'Request body is too large.' });
+  if (err instanceof SyntaxError && Object.prototype.hasOwnProperty.call(err, 'body')) {
+    return res.status(400).json({ ok: false, error: 'Request body must be valid JSON.' });
+  }
+  return next(err);
+});
+app.disable('x-powered-by');
 app.use((req, res, next) => {
-  res.header('Access-Control-Allow-Origin', '*');
-  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
-  res.header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+  res.setHeader('X-Content-Type-Options', 'nosniff');
+  res.setHeader('X-Frame-Options', 'DENY');
+  res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
   next();
 });
-app.use(bodyParser.json());
+
+const requestCounts = new Map();
+const rateLimit = (windowMs, maxRequests) => (req, res, next) => {
+  const now = Date.now();
+  const key = req.ip || req.socket.remoteAddress || 'unknown';
+  const current = requestCounts.get(key);
+  if (!current || now - current.startedAt >= windowMs) {
+    requestCounts.set(key, { startedAt: now, count: 1 });
+    return next();
+  }
+  current.count += 1;
+  if (current.count > maxRequests) {
+    return res.status(429).json({ ok: false, error: 'Too many requests. Please try again later.' });
+  }
+  return next();
+};
 
 const distributionDataFile = path.join(__dirname, 'distribution-data.json');
 let distributionReports = [];
@@ -32,10 +58,13 @@ const loadDistributionData = () => {
 };
 
 const saveDistributionData = () => {
+  const temporaryFile = `${distributionDataFile}.tmp`;
   try {
-    fs.writeFileSync(distributionDataFile, JSON.stringify(distributionReports, null, 2), 'utf8');
+    fs.writeFileSync(temporaryFile, JSON.stringify(distributionReports, null, 2), 'utf8');
+    fs.renameSync(temporaryFile, distributionDataFile);
   } catch (err) {
     console.error('Unable to save distribution data:', err);
+    try { if (fs.existsSync(temporaryFile)) fs.unlinkSync(temporaryFile); } catch (_) { /* preserve original error */ }
   }
 };
 
@@ -57,11 +86,8 @@ loadDistributionData();
 
 // Config via env
 const PORT = process.env.PORT || 3001;
-const TARGET_NUMBER = process.env.WHATSAPP_NUMBER || '256778597244'; // digits only, e.g. 256778597244
-
-if (!TARGET_NUMBER) {
-  console.warn('WARNING: WHATSAPP_NUMBER not set. Set env WHATSAPP_NUMBER to the recipient phone (digits only).');
-}
+const TARGET_NUMBER = cleanText(process.env.WHATSAPP_NUMBER, 30).replace(/[^0-9]/g, '');
+if (!TARGET_NUMBER) console.warn('WARNING: WHATSAPP_NUMBER is not configured. WhatsApp submissions are disabled.');
 
 // Use LocalAuth to persist session in ./session
 const chromeExecutableCandidates = [
@@ -83,6 +109,7 @@ const client = new Client({
   authStrategy: new LocalAuth({ clientId: 'adlite' }),
   puppeteer: puppeteerConfig
 });
+let whatsappReady = false;
 
 client.on('qr', (qr) => {
   console.log('Scan this QR with your WhatsApp to authenticate the microservice:');
@@ -90,6 +117,7 @@ client.on('qr', (qr) => {
 });
 
 client.on('ready', () => {
+  whatsappReady = true;
   console.log('WhatsApp client ready');
 });
 
@@ -98,10 +126,12 @@ client.on('authenticated', () => {
 });
 
 client.on('auth_failure', (msg) => {
+  whatsappReady = false;
   console.error('Authentication failure:', msg);
 });
 
-client.initialize();
+client.on('disconnected', () => { whatsappReady = false; });
+client.initialize().catch((err) => console.error('WhatsApp client initialization failed:', err.message));
 
 function formatPhone(digits) {
   const cleaned = (digits || '').replace(/[^0-9]/g, '');
@@ -115,16 +145,16 @@ app.get('/distribution', (req, res) => {
   return res.json({ ok: true, reports: distributionReports, totals });
 });
 
-app.post('/distribution', async (req, res) => {
-  const data = req.body || {};
-  const area = String(data.area || '').trim();
-  const bags = Number(data.bags);
-  const date = data.date ? String(data.date).trim() : '';
-  const notes = data.notes ? String(data.notes).trim() : '';
-
-  if (!area || !Number.isFinite(bags) || bags <= 0) {
-    return res.status(400).json({ ok: false, error: 'Area and bags are required. Bags must be a positive number.' });
+app.post('/distribution', rateLimit(60000, 30), async (req, res) => {
+  const authHeader = req.get('authorization') || '';
+  const expectedToken = process.env.DISTRIBUTION_WRITE_TOKEN;
+  if (!expectedToken || authHeader !== `Bearer ${expectedToken}`) {
+    return res.status(401).json({ ok: false, error: 'Distribution write access is not authorized.' });
   }
+
+  const parsed = validateDistributionPayload(req.body);
+  if (parsed.error) return res.status(400).json({ ok: false, error: parsed.error });
+  const { area, bags, date, notes } = parsed.value;
 
   const report = {
     area,
@@ -137,7 +167,7 @@ app.post('/distribution', async (req, res) => {
   distributionReports.push(report);
   saveDistributionData();
 
-  const numberId = formatPhone(process.env.WHATSAPP_NUMBER || TARGET_NUMBER);
+  const numberId = formatPhone(TARGET_NUMBER);
   const lines = [
     '*New Distribution Report*',
     `*Area:* ${report.area}`,
@@ -148,7 +178,7 @@ app.post('/distribution', async (req, res) => {
   lines.push(`_Reported at ${new Date().toLocaleString()}_`);
 
   const message = lines.join('\n');
-  if (numberId) {
+  if (numberId && whatsappReady) {
     try {
       await client.sendMessage(numberId, message);
     } catch (err) {
@@ -159,25 +189,28 @@ app.post('/distribution', async (req, res) => {
   return res.json({ ok: true, report, totals: aggregateDistributionByArea(distributionReports) });
 });
 
-app.post('/submit', async (req, res) => {
+app.post('/submit', rateLimit(60000, 10), async (req, res) => {
   const data = req.body || {};
 
-  const numberId = formatPhone(process.env.WHATSAPP_NUMBER || TARGET_NUMBER);
+  const numberId = formatPhone(TARGET_NUMBER);
   if (!numberId) {
     return res.status(400).json({ ok: false, error: 'WHATSAPP_NUMBER not configured' });
+  }
+  if (!whatsappReady) {
+    return res.status(503).json({ ok: false, error: 'WhatsApp is not ready. Authenticate the service and try again.' });
   }
 
   // Build a human-friendly message
   const lines = [];
   lines.push('*New Campaign Request*');
-  if (data.package) lines.push(`*Package:* ${data.package}`);
-  if (data.areas) lines.push(`*Areas:* ${data.areas}`);
-  if (data.fullName) lines.push(`*Name:* ${data.fullName}`);
-  if (data.email) lines.push(`*Email:* ${data.email}`);
-  if (data.phone) lines.push(`*Phone:* ${data.phone}`);
-  if (data.companyName) lines.push(`*Company:* ${data.companyName}`);
-  if (data.companyWebsite) lines.push(`*Website:* ${data.companyWebsite}`);
-  if (data.notes) lines.push(`*Notes:* ${data.notes}`);
+  if (data.package) lines.push(`*Package:* ${cleanText(data.package, 80)}`);
+  if (data.areas) lines.push(`*Areas:* ${cleanText(data.areas, 500)}`);
+  if (data.fullName) lines.push(`*Name:* ${cleanText(data.fullName, 120)}`);
+  if (data.email) lines.push(`*Email:* ${cleanText(data.email, 160)}`);
+  if (data.phone) lines.push(`*Phone:* ${cleanText(data.phone, 40)}`);
+  if (data.companyName) lines.push(`*Company:* ${cleanText(data.companyName, 160)}`);
+  if (data.companyWebsite) lines.push(`*Website:* ${cleanText(data.companyWebsite, 300)}`);
+  if (data.notes) lines.push(`*Notes:* ${cleanText(data.notes, 2000)}`);
   lines.push(`_Received at ${new Date().toLocaleString()}_
 `);
 
@@ -193,5 +226,7 @@ app.post('/submit', async (req, res) => {
 });
 
 app.get('/', (req, res) => res.send('AdLite WhatsApp microservice running'));
+
+app.get('/health', (req, res) => res.json({ ok: true, whatsappReady, distributionReports: distributionReports.length }));
 
 app.listen(PORT, () => console.log(`Microservice listening on http://localhost:${PORT}`));

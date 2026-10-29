@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Report Distribution — AdLite</title>
   <link rel="stylesheet" href="../styles.css">
+  <script src="site-config.js"></script>
   <link rel="icon" href="../imgs/favicon.png" type="image/png" />
   <link rel="apple-touch-icon" href="../imgs/favicon.png" />
   <style>
@@ -94,7 +95,7 @@
       </form>
 
       <div class="note-box">
-        Note: This service uses the local distribution microservice at <code>http://localhost:3001/distribution</code>. Make sure the server is running to update the live map.
+        Note: This page uses the configured AdLite distribution API. Set <code>AD_LITE_API_BASE_URL</code> in <code>site-config.js</code> when the API is hosted separately.
       </div>
     </div>
   </div>
@@ -107,7 +108,8 @@
     const areaInput = document.getElementById('area');
     const existingAreaInfo = document.getElementById('existing-area-info');
     const areasList = document.getElementById('areas-list');
-    const apiUrl = window.DISTRIBUTION_API_URL || 'http://localhost:3001/distribution';
+    const apiBaseUrl = window.AD_LITE_API_BASE_URL || (window.location.hostname === 'localhost' ? 'http://localhost:3001' : '');
+    const apiUrl = `${apiBaseUrl}/distribution`;
     let existingAreas = [];
 
     const setExistingAreaInfo = (text) => {
@@ -118,9 +120,11 @@
     const normalizeArea = (value) => String(value || '').trim().toLowerCase();
 
     const refreshAreaOptions = () => {
-      areasList.innerHTML = existingAreas
-        .map((area) => `<option value="${area.name}"></option>`)
-        .join('');
+      areasList.replaceChildren(...existingAreas.map((area) => {
+        const option = document.createElement('option');
+        option.value = area.name;
+        return option;
+      }));
     };
 
     const updateExistingAreaMessage = (value) => {
@@ -195,7 +199,10 @@
       try {
         const response = await fetch(apiUrl, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: {
+            'Content-Type': 'application/json',
+            ...(window.AD_LITE_DISTRIBUTION_WRITE_TOKEN ? { Authorization: `Bearer ${window.AD_LITE_DISTRIBUTION_WRITE_TOKEN}` } : {})
+          },
           body: JSON.stringify({ area, bags, date, notes })
         });
 
@@ -209,7 +216,7 @@
         localStorage.setItem('distribution-updated', Date.now().toString());
         showStatus('Report submitted successfully. The live map will update automatically.');
       } catch (err) {
-        showError('Unable to submit report. Ensure the server is running at http://localhost:3001.');
+        showError('Unable to submit the report. Please check the service configuration and try again.');
         console.error(err);
       } finally {
         submitButton.disabled = false;

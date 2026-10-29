@@ -23,6 +23,7 @@ def normalize_canonical(text: str, dir_name: str) -> str:
 def create_directory_page(text: str, dir_name: str) -> str:
     text = normalize_canonical(text, dir_name)
     text = text.replace('href="styles.css"', 'href="../styles.css"')
+    text = text.replace('src="site-config.js"', 'src="../site-config.js"')
     text = text.replace('href="imgs/', 'href="../imgs/')
     text = text.replace('src="imgs/', 'src="../imgs/')
     text = text.replace('href="index.html"', 'href="../"')
@@ -36,6 +37,7 @@ def create_directory_page(text: str, dir_name: str) -> str:
 def create_fallback_page(text: str, dir_name: str) -> str:
     text = normalize_canonical(text, dir_name)
     text = text.replace('href="../styles.css"', 'href="styles.css"')
+    text = text.replace('src="../site-config.js"', 'src="site-config.js"')
     text = text.replace('href="../imgs/', 'href="imgs/')
     text = text.replace('src="../imgs/', 'src="imgs/')
     text = text.replace('href="../"', 'href="index.html"')
