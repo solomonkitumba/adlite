@@ -429,6 +429,7 @@
               <div class="form-success" id="form-success" aria-live="polite">
                 <h3>Thanks — your campaign request is ready.</h3>
                 <p>We’ve captured your information and will follow up with a custom quote within one business day.</p>
+                <p class="success-followup">Returning to the campaign form shortly…</p>
               </div>
             </form>
           </div>
@@ -796,6 +797,7 @@
 
         const apiBaseUrl = window.AD_LITE_API_BASE_URL || (window.location.hostname === 'localhost' ? 'http://localhost:3001' : '');
         const apiUrl = `${apiBaseUrl}/submit`;
+        nextButton.disabled = true;
         fetch(apiUrl, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -812,8 +814,19 @@
           formSteps.forEach(step => step.classList.remove('active'));
           if (formActions) formActions.style.display = 'none';
           successPanel.classList.add('visible');
+          window.setTimeout(() => {
+            campaignForm.reset();
+            areaTags.length = 0;
+            renderAreaTags();
+            currentStep = 0;
+            successPanel.classList.remove('visible');
+            if (formActions) formActions.style.display = '';
+            nextButton.disabled = false;
+            showStep(0);
+          }, 4500);
         }).catch(err => {
           console.error('submit error', err);
+          nextButton.disabled = false;
           if (errorPanel) {
             errorPanel.textContent = 'Unable to send your request right now. Please try again or contact AdLite directly.';
           }
