@@ -218,7 +218,9 @@ app.post('/submit', rateLimit(60000, 10), async (req, res) => {
 
   try {
     const msg = await client.sendMessage(numberId, message);
-    return res.json({ ok: true, id: msg.id._serialized });
+    const id = msg && msg.id ? msg.id._serialized : null;
+    console.log('Campaign request sent to WhatsApp', id || '(message id unavailable)');
+    return res.json({ ok: true, id });
   } catch (err) {
     console.error('sendMessage error', err && err.message);
     return res.status(500).json({ ok: false, error: err && err.message });
